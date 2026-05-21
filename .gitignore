@@ -1,0 +1,19 @@
+# UI
+ui/node_modules/
+ui/dist/
+
+# Java
+backend/target/
+backend/.classpath
+backend/.project
+backend/.settings/
+
+# Secrets / local env
+.env
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+*.iml
+.idea/
+.vscode/

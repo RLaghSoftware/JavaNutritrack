@@ -81,8 +81,9 @@
 }
 
 .auth-btn-secondary {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: var(--accent-bg);
+  color: var(--text-h);
+  border: 1px solid var(--border);
 }
 
 .auth-footer {
@@ -112,4 +113,14 @@
   padding: 0.75rem;
   border-radius: 8px;
   background: rgba(0, 0, 0, 0.3);
+}
+
+.dashboard-footer {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.dashboard-footer .auth-btn {
+  width: 100%;
 }

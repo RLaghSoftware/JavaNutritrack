@@ -31,7 +31,6 @@ export default function DashboardPage() {
               Signed in as <strong>{user?.username}</strong> ({user?.email})
             </p>
           </div>
-          <LogoutButton />
         </header>
 
         {error && <p className="auth-error">{error}</p>}
@@ -52,6 +51,10 @@ export default function DashboardPage() {
         <p className="auth-muted">
           Role: {user?.role} · Email verified: {user?.emailVerified ? 'yes' : 'no'}
         </p>
+
+        <footer className="dashboard-footer">
+          <LogoutButton />
+        </footer>
       </div>
     </div>
   )

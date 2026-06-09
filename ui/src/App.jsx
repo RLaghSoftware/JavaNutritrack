@@ -2,10 +2,14 @@ import { useEffect } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import ProtectedRoute from './components/ProtectedRoute'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import AddMealPage from './pages/AddMealPage'
 import DashboardPage from './pages/DashboardPage'
 import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
+import ViewMealsPage from './pages/ViewMealsPage'
+import ViewMetricsPage from './pages/ViewMetricsPage'
 import './auth.css'
+import './dashboard.css'
 
 function AuthBootstrap({ children }) {
   const { loadProfile } = useAuth()
@@ -41,6 +45,30 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <DashboardPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/meals/add"
+        element={
+          <ProtectedRoute>
+            <AddMealPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/meals"
+        element={
+          <ProtectedRoute>
+            <ViewMealsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/metrics"
+        element={
+          <ProtectedRoute>
+            <ViewMetricsPage />
           </ProtectedRoute>
         }
       />

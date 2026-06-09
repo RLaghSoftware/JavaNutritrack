@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
-export default function LogoutButton() {
+export default function LogoutButton({ className = '' }) {
   const { logout } = useAuth()
   const navigate = useNavigate()
 
@@ -11,7 +11,11 @@ export default function LogoutButton() {
   }
 
   return (
-    <button type="button" className="auth-btn" onClick={handleLogout}>
+    <button
+      type="button"
+      className={`auth-btn${className ? ` ${className}` : ''}`}
+      onClick={handleLogout}
+    >
       Log out
     </button>
   )

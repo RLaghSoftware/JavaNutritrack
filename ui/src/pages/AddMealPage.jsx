@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import api from '../api/axios'
 import DashboardHeader from '../components/DashboardHeader'
 import Toast from '../components/Toast'
 
@@ -26,7 +27,8 @@ export default function AddMealPage() {
   const [form, setForm] = useState(emptyForm)
   const [pendingMeal, setPendingMeal] = useState(null)
   const [error, setError] = useState('')
-  const [toast, setToast] = useState('')
+  const [toast, setToast] = useState(null)
+  const [submitting, setSubmitting] = useState(false)
 
   const updateField = (field) => (e) => {
     setForm((prev) => ({ ...prev, [field]: e.target.value }))
@@ -75,12 +77,23 @@ export default function AddMealPage() {
     })
   }
 
-  const handleConfirm = () => {
-    const mealName = pendingMeal.mealName
-    setPendingMeal(null)
-    setForm(emptyForm())
-    setError('')
-    setToast(`"${mealName}" added successfully.`)
+  const handleConfirm = async () => {
+    setSubmitting(true)
+    try {
+      const { data } = await api.post('/meals', pendingMeal)
+      if (data.success) {
+        setPendingMeal(null)
+        setForm(emptyForm())
+        setError('')
+        setToast({ message: data.message, type: 'success' })
+      } else {
+        setToast({ message: data.message, type: 'error' })
+      }
+    } catch {
+      setToast({ message: 'Could not add meal. Try again.', type: 'error' })
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   const handleEdit = () => {
@@ -95,7 +108,7 @@ export default function AddMealPage() {
           ← Back to dashboard
         </Link>
         <h1>Add meal</h1>
-        <p className="dash-subtitle">Log macros for a meal. Backend save coming soon.</p>
+        <p className="dash-subtitle">Log macros for a meal.</p>
 
         {!pendingMeal ? (
           <form className="meal-form" onSubmit={handleReview}>
@@ -205,15 +218,22 @@ export default function AddMealPage() {
                 type="button"
                 className="dash-action-btn dash-action-btn--primary"
                 onClick={handleConfirm}
+                disabled={submitting}
               >
-                Confirm
+                {submitting ? 'Saving…' : 'Confirm'}
               </button>
             </div>
           </section>
         )}
       </main>
 
-      {toast && <Toast message={toast} onClose={() => setToast('')} />}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   )
 }

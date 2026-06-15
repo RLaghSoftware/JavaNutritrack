@@ -249,6 +249,11 @@
   text-align: center;
 }
 
+.toast--error {
+  background: #dc2626;
+  color: #fff;
+}
+
 @media (max-width: 600px) {
   .dash-header {
     padding: 0.85rem 1rem;

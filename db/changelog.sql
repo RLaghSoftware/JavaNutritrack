@@ -48,4 +48,24 @@ CREATE TABLE IF NOT EXISTS refresh_tokens (
 
 CREATE INDEX idx_refresh_tokens_user_id ON refresh_tokens (user_id);
 
+-- -----------------------------------------------------------------------------
+-- 2026-06-12 — Meals table (user meal logging)
+-- -----------------------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS meals (
+    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id     BIGINT         NOT NULL,
+    meal_name   VARCHAR(100)   NOT NULL,
+    meal_date   DATE           NOT NULL,
+    protein     DECIMAL(8, 2)  NOT NULL,
+    carbs       DECIMAL(8, 2)  NOT NULL,
+    fat         DECIMAL(8, 2)  NOT NULL,
+    calories    DECIMAL(8, 2)  NOT NULL,
+    created_at  TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_meals_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_meals_user_id ON meals (user_id);
+CREATE INDEX idx_meals_user_date ON meals (user_id, meal_date);
+
 -- Add table migrations below.

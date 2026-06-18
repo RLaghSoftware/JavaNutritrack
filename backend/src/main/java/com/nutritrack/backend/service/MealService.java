@@ -2,19 +2,45 @@ package com.nutritrack.backend.service;
 
 import com.nutritrack.backend.dto.AddMealRequest;
 import com.nutritrack.backend.dto.MealResponse;
+import com.nutritrack.backend.entity.Meal;
 import com.nutritrack.backend.entity.User;
+import com.nutritrack.backend.repository.MealRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
 
 @Service
 public class MealService {
 
+    private final MealRepository mealRepository;
+
+    public MealService(MealRepository mealRepository) {
+        this.mealRepository = mealRepository;
+    }
+
+    @Transactional
     public MealResponse addMeal(AddMealRequest request, User user) {
         String validationError = validate(request);
         if (validationError != null) {
             return MealResponse.failure(validationError);
         }
 
-        // TODO: persist meal for user
+        try {
+            Meal mealToAdd = Meal.builder()
+                    .user(user)
+                    .mealName(request.getMealName().trim())
+                    .mealDate(request.getDate())
+                    .protein(BigDecimal.valueOf(request.getProtein()))
+                    .carbs(BigDecimal.valueOf(request.getCarbs()))
+                    .fat(BigDecimal.valueOf(request.getFat()))
+                    .calories(BigDecimal.valueOf(request.getCalories()))
+                    .build();
+
+            mealRepository.save(mealToAdd);
+        } catch (Exception e) {
+            return MealResponse.failure("Something went wrong when adding meal");
+        }
         return MealResponse.success();
     }
 

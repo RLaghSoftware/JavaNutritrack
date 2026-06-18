@@ -2,26 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import api from '../api/axios'
 import DashboardHeader from '../components/DashboardHeader'
-
-function todayIso() {
-  return new Date().toISOString().split('T')[0]
-}
-
-function weekAgoIso() {
-  const d = new Date()
-  d.setDate(d.getDate() - 7)
-  return d.toISOString().split('T')[0]
-}
-
-function formatDate(dateStr) {
-  const [year, month, day] = dateStr.split('-')
-  return new Date(year, month - 1, day).toLocaleDateString(undefined, {
-    weekday: 'short',
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  })
-}
+import { formatDate, todayIso, weekAgoIso } from '../utils/dates'
 
 export default function ViewMealsPage() {
   const [startDate, setStartDate] = useState(weekAgoIso())

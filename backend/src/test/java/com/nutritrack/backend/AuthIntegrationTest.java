@@ -46,4 +46,38 @@ class AuthIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.user.email").value("test@example.com"));
     }
+
+    @Test
+    void addMealAndGetMealsInRange() throws Exception {
+        String signupBody = """
+                {"username":"mealuser","email":"meal@example.com","password":"password123"}
+                """;
+
+        MvcResult signupResult = mockMvc.perform(post("/api/auth/signup")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(signupBody))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        String token = objectMapper.readTree(signupResult.getResponse().getContentAsString())
+                .get("token").asText();
+
+        String mealBody = """
+                {"mealName":"Chicken salad","date":"2026-05-15","protein":35,"carbs":20,"fat":12,"calories":380}
+                """;
+
+        mockMvc.perform(post("/api/meals")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mealBody))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/meals")
+                        .param("startDate", "2026-05-01")
+                        .param("endDate", "2026-05-31")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].mealName").value("Chicken salad"));
+    }
 }

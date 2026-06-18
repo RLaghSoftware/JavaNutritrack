@@ -47,17 +47,13 @@ public class MealService {
         return MealResponse.success();
     }
 
+    @Transactional(readOnly = true)
     public List<MealDto> getMealsInRange(User user, LocalDate startDate, LocalDate endDate) {
-        // TODO: query mealRepository by user and date range
-        return List.of(MealDto.builder()
-                .id(1L)
-                .mealName("Sample lunch")
-                .date(startDate)
-                .protein(new BigDecimal("30.00"))
-                .carbs(new BigDecimal("40.00"))
-                .fat(new BigDecimal("15.00"))
-                .calories(new BigDecimal("500.00"))
-                .build());
+        return mealRepository
+                .findByUserAndMealDateBetweenOrderByMealDateDescCreatedAtDesc(user, startDate, endDate)
+                .stream()
+                .map(MealDto::createMealDto)
+                .toList();
     }
 
     private String validate(AddMealRequest request) {

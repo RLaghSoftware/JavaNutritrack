@@ -1,6 +1,7 @@
 package com.nutritrack.backend.service;
 
 import com.nutritrack.backend.dto.AddMealRequest;
+import com.nutritrack.backend.dto.MealDto;
 import com.nutritrack.backend.dto.MealResponse;
 import com.nutritrack.backend.entity.Meal;
 import com.nutritrack.backend.entity.User;
@@ -9,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
 
 @Service
 public class MealService {
@@ -42,6 +45,19 @@ public class MealService {
             return MealResponse.failure("Something went wrong when adding meal");
         }
         return MealResponse.success();
+    }
+
+    public List<MealDto> getMealsInRange(User user, LocalDate startDate, LocalDate endDate) {
+        // TODO: query mealRepository by user and date range
+        return List.of(MealDto.builder()
+                .id(1L)
+                .mealName("Sample lunch")
+                .date(startDate)
+                .protein(new BigDecimal("30.00"))
+                .carbs(new BigDecimal("40.00"))
+                .fat(new BigDecimal("15.00"))
+                .calories(new BigDecimal("500.00"))
+                .build());
     }
 
     private String validate(AddMealRequest request) {

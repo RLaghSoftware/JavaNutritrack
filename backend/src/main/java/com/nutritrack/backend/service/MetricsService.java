@@ -3,6 +3,8 @@ package com.nutritrack.backend.service;
 import com.nutritrack.backend.dto.DailyMetricsDto;
 import com.nutritrack.backend.dto.MetricsReportDto;
 import com.nutritrack.backend.entity.User;
+import com.nutritrack.backend.repository.DailyMetricsAggregate;
+import com.nutritrack.backend.repository.MealRepository;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -15,16 +17,26 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 @Service
 public class MetricsService {
 
+    private final MealRepository mealRepository;
+
+    public MetricsService(MealRepository mealRepository) {
+        this.mealRepository = mealRepository;
+    }
+
     @Transactional(readOnly = true)
     public MetricsReportDto getDailyReport(User user, LocalDate startDate, LocalDate endDate) {
-        List<DailyMetricsDto> rows = buildDummyRows(user, startDate, endDate);
+        List<DailyMetricsDto> rows = mealRepository
+                .sumMacrosByUserAndDateRange(user, startDate, endDate)
+                .stream()
+                .map(this::toDailyMetricsDto)
+                .toList();
+
         return MetricsReportDto.builder()
                 .startDate(startDate)
                 .endDate(endDate)
@@ -89,21 +101,14 @@ public class MetricsService {
         return "nutritrack-metrics-" + startDate + "-to-" + endDate + ".xlsx";
     }
 
-    // TODO: replace with DB aggregation grouped by meal_date for the user
-    private List<DailyMetricsDto> buildDummyRows(User user, LocalDate startDate, LocalDate endDate) {
-        List<DailyMetricsDto> rows = new ArrayList<>();
-        int dayIndex = 0;
-        for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
-            rows.add(DailyMetricsDto.builder()
-                    .date(date)
-                    .protein(scale(80 + (dayIndex * 7) % 40))
-                    .carbs(scale(120 + (dayIndex * 11) % 60))
-                    .fat(scale(35 + (dayIndex * 5) % 25))
-                    .calories(scale(900 + (dayIndex * 50) % 400))
-                    .build());
-            dayIndex++;
-        }
-        return rows;
+    private DailyMetricsDto toDailyMetricsDto(DailyMetricsAggregate aggregate) {
+        return DailyMetricsDto.builder()
+                .date(aggregate.getMealDate())
+                .protein(scale(aggregate.getTotalProtein()))
+                .carbs(scale(aggregate.getTotalCarbs()))
+                .fat(scale(aggregate.getTotalFat()))
+                .calories(scale(aggregate.getTotalCalories()))
+                .build();
     }
 
     private DailyMetricsDto sumRows(List<DailyMetricsDto> rows) {
@@ -129,9 +134,5 @@ public class MetricsService {
 
     private BigDecimal scale(BigDecimal value) {
         return value.setScale(2, RoundingMode.HALF_UP);
-    }
-
-    private BigDecimal scale(double value) {
-        return BigDecimal.valueOf(value).setScale(2, RoundingMode.HALF_UP);
     }
 }

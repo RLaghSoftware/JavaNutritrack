@@ -97,14 +97,42 @@ class AuthIntegrationTest {
         String token = objectMapper.readTree(signupResult.getResponse().getContentAsString())
                 .get("token").asText();
 
+        mockMvc.perform(post("/api/meals")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"mealName":"Breakfast","date":"2026-05-01","protein":20,"carbs":30,"fat":10,"calories":300}
+                                """))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(post("/api/meals")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"mealName":"Lunch","date":"2026-05-01","protein":30,"carbs":40,"fat":15,"calories":450}
+                                """))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(post("/api/meals")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"mealName":"Dinner","date":"2026-05-03","protein":25,"carbs":35,"fat":12,"calories":400}
+                                """))
+                .andExpect(status().isOk());
+
         mockMvc.perform(get("/api/metrics/report")
                         .param("startDate", "2026-05-01")
                         .param("endDate", "2026-05-03")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.rows.length()").value(3))
-                .andExpect(jsonPath("$.totals.protein").exists())
-                .andExpect(jsonPath("$.totals.calories").exists());
+                .andExpect(jsonPath("$.rows.length()").value(2))
+                .andExpect(jsonPath("$.rows[0].date").value("2026-05-01"))
+                .andExpect(jsonPath("$.rows[0].protein").value(50.0))
+                .andExpect(jsonPath("$.rows[0].calories").value(750.0))
+                .andExpect(jsonPath("$.rows[1].date").value("2026-05-03"))
+                .andExpect(jsonPath("$.totals.protein").value(75.0))
+                .andExpect(jsonPath("$.totals.calories").value(1150.0));
 
         MvcResult downloadResult = mockMvc.perform(get("/api/metrics/report/download")
                         .param("startDate", "2026-05-01")
